@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "io.freefair.lombok" version "4.1.6"
+}
+
+group 'io.github.jroy'
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile 'com.squareup.okhttp3:okhttp:4.3.1'
+    compile 'com.github.thomas-bouvier:persistent-cookie-jar-okhttp:1.0.2'
+
+    //lombok
+    compileOnly 'org.projectlombok:lombok:1.18.10'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+}
