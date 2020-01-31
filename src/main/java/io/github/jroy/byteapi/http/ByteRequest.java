@@ -41,6 +41,11 @@ public class ByteRequest {
     return this;
   }
 
+  public ByteRequest setJsonPut(String payload) {
+    this.request.put(RequestBody.create(payload, JSON));
+    return this;
+  }
+
   public ByteRequest authorization(String token) {
     addHeader("authorization", token);
     return this;
