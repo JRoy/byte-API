@@ -5,7 +5,10 @@ import lombok.Data;
 @Data
 public class Account {
   private String id;
+  private Boolean isRegistered;
   private Boolean isChannel;
+  private Boolean isSuspended;
+  private Boolean isDeactivated;
   private Long registrationDate;
   private String username;
   private String displayName;
