@@ -6,5 +6,9 @@ import lombok.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Data
 public class GenericResponse {
-  private int success;
+  private Integer success;
+
+  public boolean isSuccess() {
+    return success != null && success == 1;
+  }
 }
