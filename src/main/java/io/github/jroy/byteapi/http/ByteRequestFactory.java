@@ -10,8 +10,8 @@ public class ByteRequestFactory {
   private final OkHttpClient client = new OkHttpClient.Builder().build();
   private final UncheckedObjectMapper mapper = new UncheckedObjectMapper();
 
-  public ByteRequest request(String endpoint) {
-    return new ByteRequest(endpoint, this);
+  public ByteRequestFactory() {
+    ByteRequest.setRequestFactory(this);
   }
 
   public <T> T mapResponse(Class<T> responseClass, String response) {
