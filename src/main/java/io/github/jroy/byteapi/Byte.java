@@ -6,6 +6,7 @@ import io.github.jroy.byteapi.http.response.AuthenticateResponse;
 import io.github.jroy.byteapi.http.response.RebytesTimelineResponse;
 import io.github.jroy.byteapi.http.response.SelfAccountInfoResponse;
 import io.github.jroy.byteapi.http.response.TimelineResponse;
+import lombok.Getter;
 import org.json.JSONObject;
 
 public class Byte {
@@ -14,7 +15,9 @@ public class Byte {
   private final ByteRequestFactory requestFactory;
 
   private boolean isLoggedIn = false;
+  @Getter
   private String token = null;
+  @Getter
   private String accountId = null;
 
   public Byte() {
@@ -23,7 +26,7 @@ public class Byte {
 
   public Byte(boolean debug) {
     this.debug = debug;
-    this.requestFactory = new ByteRequestFactory();
+    this.requestFactory = new ByteRequestFactory(this);
   }
 
   public AuthenticateResponse login(String googleToken) {
@@ -49,43 +52,28 @@ public class Byte {
   }
 
   public TimelineResponse getTimeline() {
-    if (!isLoggedIn) {
-      throw new ByteAPIException("This request requires authentication!");
-    }
     return new ByteRequest("timeline")
-        .authorization(token)
         .getResponse(TimelineResponse.class);
   }
 
   public TimelineResponse getGlobalFeed() {
-    if (!isLoggedIn) {
-      throw new ByteAPIException("This request requires authentication!");
-    }
     return new ByteRequest("feed/global")
-        .authorization(token)
         .getResponse(TimelineResponse.class);
   }
 
   public RebytesTimelineResponse getRebytesTimeline() {
-    if (!isLoggedIn) {
-      throw new ByteAPIException("This request requires authentication!");
-    }
     return new ByteRequest("timeline/rebytes")
-        .authorization(token)
         .getResponse(RebytesTimelineResponse.class);
   }
 
   public SelfAccountInfoResponse getSelfAccount() {
-    if (!isLoggedIn) {
-      throw new ByteAPIException("This request requires authentication!");
-    }
     return new ByteRequest("account/me")
-        .authorization(token)
         .getResponse(SelfAccountInfoResponse.class);
   }
 
   private void sendAppOpen() {
     new ByteRequest("client/event")
+        .requiresAuth(false)
         .setJsonPost("{\"eventData\":{\"os\":\"android\"},\"eventType\":\"appOpen\"}")
         .send();
   }

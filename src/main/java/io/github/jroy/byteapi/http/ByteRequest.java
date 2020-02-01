@@ -1,14 +1,12 @@
 package io.github.jroy.byteapi.http;
 
+import io.github.jroy.byteapi.ByteAPIException;
 import io.github.jroy.byteapi.http.response.base.GenericResponse;
 import io.github.jroy.byteapi.util.Constants;
 import lombok.Cleanup;
 import lombok.Getter;
 import lombok.SneakyThrows;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 
 import java.util.Objects;
 
@@ -24,6 +22,8 @@ public class ByteRequest {
   @Getter
   private final String endpoint;
   private final Request.Builder request;
+
+  private boolean requiresAuth = true;
 
   public ByteRequest(String endpoint) {
     this.endpoint = endpoint;
@@ -46,14 +46,24 @@ public class ByteRequest {
     return this;
   }
 
-  public ByteRequest authorization(String token) {
-    addHeader("authorization", token);
+  public ByteRequest requiresAuth(boolean requiresAuth) {
+    this.requiresAuth = requiresAuth;
     return this;
+  }
+
+  private Call prepareCall() {
+    if (requiresAuth) {
+      if (requestFactory.getToken() == null) {
+        throw new ByteAPIException("This request requires authentication!");
+      }
+      addHeader("authorization", requestFactory.getToken());
+    }
+    return requestFactory.getClient().newCall(request.build());
   }
 
   @SneakyThrows
   public void send() {
-    requestFactory.getClient().newCall(request.build()).execute();
+    prepareCall().execute();
   }
 
   public GenericResponse getResponse() {
@@ -62,7 +72,7 @@ public class ByteRequest {
 
   @SneakyThrows
   public <T> T getResponse(Class<T> responseClass) {
-    @Cleanup Response response = requestFactory.getClient().newCall(request.build()).execute();
+    @Cleanup Response response = prepareCall().execute();
     return requestFactory.mapResponse(responseClass, Objects.requireNonNull(response.body()).string());
   }
 
