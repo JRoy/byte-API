@@ -6,6 +6,7 @@ import io.github.jroy.byteapi.http.response.AuthenticateResponse;
 import io.github.jroy.byteapi.http.response.RebytesTimelineResponse;
 import io.github.jroy.byteapi.http.response.SelfAccountInfoResponse;
 import io.github.jroy.byteapi.http.response.TimelineResponse;
+import io.github.jroy.byteapi.http.response.base.GenericResponse;
 import lombok.Getter;
 import org.json.JSONObject;
 
@@ -29,7 +30,7 @@ public class Byte {
     this.requestFactory = new ByteRequestFactory(this);
   }
 
-  public AuthenticateResponse login(String googleToken) {
+  public AuthenticateResponse login(String googleToken, String firebaseToken) {
     if (isLoggedIn) {
       throw new ByteAPIException("Already logged in!");
     }
@@ -43,11 +44,11 @@ public class Byte {
     isLoggedIn = true;
     token = response.getData().getToken().getToken();
     accountId = response.getData().getToken().getAccountID();
-    getTimeline();
-    getGlobalFeed();
-    getRebytesTimeline();
     getSelfAccount();
-    //TODO: Find deviceToken code in https://api.byte.co/account/me/device
+    registerDevice(firebaseToken);
+    getTimeline();
+    getRebytesTimeline();
+    getGlobalFeed();
     return response;
   }
 
@@ -71,10 +72,19 @@ public class Byte {
         .getResponse(SelfAccountInfoResponse.class);
   }
 
-  private void sendAppOpen() {
-    new ByteRequest("client/event")
+  public void registerDevice(String firebaseToken) {
+    new ByteRequest("account/me/device")
+        .setJsonPut(new JSONObject()
+        .put("applicationID", "co.byte")
+        .put("deviceToken", firebaseToken)
+        .put("deviceType", "android").toString())
+        .send();
+  }
+
+  private GenericResponse sendAppOpen() {
+    return new ByteRequest("client/event")
         .requiresAuth(false)
         .setJsonPost("{\"eventData\":{\"os\":\"android\"},\"eventType\":\"appOpen\"}")
-        .send();
+        .getResponse(GenericResponse.class);
   }
 }
