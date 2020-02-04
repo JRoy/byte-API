@@ -2,10 +2,7 @@ package io.github.jroy.byteapi;
 
 import io.github.jroy.byteapi.http.ByteRequest;
 import io.github.jroy.byteapi.http.ByteRequestFactory;
-import io.github.jroy.byteapi.http.response.AuthenticateResponse;
-import io.github.jroy.byteapi.http.response.RebytesTimelineResponse;
-import io.github.jroy.byteapi.http.response.SelfAccountInfoResponse;
-import io.github.jroy.byteapi.http.response.TimelineResponse;
+import io.github.jroy.byteapi.http.response.*;
 import io.github.jroy.byteapi.http.response.base.GenericResponse;
 import lombok.Getter;
 import org.json.JSONObject;
@@ -36,6 +33,7 @@ public class Byte {
     }
     sendAppOpen();
     AuthenticateResponse response = new ByteRequest("authenticate/google")
+        .requiresAuth(false)
         .setJsonPost(new JSONObject().put("provider", "google").put("token", googleToken).toString())
         .getResponse(AuthenticateResponse.class);
     if (!response.isSuccess()) {
@@ -49,6 +47,8 @@ public class Byte {
     getTimeline();
     getRebytesTimeline();
     getGlobalFeed();
+    getMotd();
+    //TODO: new events system
     return response;
   }
 
@@ -79,6 +79,12 @@ public class Byte {
         .put("deviceToken", firebaseToken)
         .put("deviceType", "android").toString())
         .send();
+  }
+
+  public MOTDResponse getMotd() {
+    return new ByteRequest("https://byte.co/", "public/motd.json")
+        .requiresAuth(false)
+        .getResponse(MOTDResponse.class);
   }
 
   private GenericResponse sendAppOpen() {

@@ -9,6 +9,7 @@ public class Account {
   private Boolean isChannel;
   private Boolean isSuspended;
   private Boolean isDeactivated;
+  private Boolean isDeleted;
   private Long registrationDate;
   private String username;
   private String displayName;

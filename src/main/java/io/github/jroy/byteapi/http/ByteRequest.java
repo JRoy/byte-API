@@ -26,9 +26,13 @@ public class ByteRequest {
   private boolean requiresAuth = true;
 
   public ByteRequest(String endpoint) {
+    this(Constants.API_URL, endpoint);
+  }
+
+  public ByteRequest(String url, String endpoint) {
     this.endpoint = endpoint;
-    this.request = new Request.Builder().url(Constants.API_URL + this.endpoint)
-    .addHeader("User-Agent", USER_AGENT);
+    this.request = new Request.Builder().url(url + this.endpoint)
+        .addHeader("User-Agent", USER_AGENT);
   }
 
   public ByteRequest addHeader(String header, String value) {
